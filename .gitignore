@@ -44,3 +44,7 @@ Thumbs.db
 
 # generated code from example #
 example/fsm_example
+
+# PosixMachTiming
+# specific files not to include
+src/timing_test
