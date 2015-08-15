@@ -11,10 +11,14 @@ you can compile and run from the command line. For example:
 
 should output something like
 
-    Epoch Time is 1439262872 seconds
-    sum = 1.644934e+00
-    elapsed = 1.000153e+00 s
-    wait 2 seconds...
+    Epoch Time is 1439596916 seconds
+
+    Performing some math operations (sum) ...
+    Done. (result is: sum = 1.64493)
+    Elapsed Time = 1.000011e+00 s
+
+    Wait 2 seconds ...
     Done waiting.
-    elapsed = 2.000153e+00 s
-    Epoch Time is 1439262875 seconds
+    Elapsed Time = 2.000011e+00 s
+
+    Epoch Time is 1439596919 seconds

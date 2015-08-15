@@ -23,9 +23,10 @@ extern mach_port_t clock_port;
 
 int timing_mach_init (void) {
     int retval = mach_timebase_info(&timing_mach_g.timebase);
-    if (retval == 0)
+    if (retval == 0) {
         retval = host_get_clock_service(mach_host_self(),
                                         CALENDAR_CLOCK, &timing_mach_g.cclock);
+    }
     return retval;
 }
 
@@ -49,7 +50,6 @@ int clock_gettime(clockid_t id, struct timespec *tspec) {
 }
 
 int clock_nanosleep_abstime(const struct timespec *req, struct timespec *rem) {
-
     struct timespec ts_delta;
     int retval = 0;
     retval = clock_gettime(CLOCK_MONOTONIC, &ts_delta);
@@ -62,6 +62,11 @@ int clock_nanosleep_abstime(const struct timespec *req, struct timespec *rem) {
 
 /* __MACH__ */
 /* ******** */
+#endif
+
+/* no inline functions if not at least C99 */
+#ifndef TIMING_C99
+# define inline
 #endif
 
 /* timespec to double */
@@ -96,3 +101,8 @@ inline void timespec_monoadd(struct timespec *ts_out,
         ts_out->tv_nsec = ts_out->tv_nsec - TIMING_GIGA;
     }
 }
+
+/* clean up define 'inline' */
+#ifndef TIMING_C99
+# undef inline
+#endif
