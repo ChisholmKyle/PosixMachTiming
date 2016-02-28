@@ -81,7 +81,7 @@ inline void timespec_monodiff(struct timespec *ts_out,
        where in > out
      */
     ts_out->tv_sec = ts_in->tv_sec - ts_out->tv_sec;
-    ts_out->tv_nsec = ts_in->tv_sec - ts_out->tv_sec;
+    ts_out->tv_nsec = ts_in->tv_nsec - ts_out->tv_nsec;
     if (ts_out->tv_nsec < 0) {
         ts_out->tv_sec = ts_out->tv_sec - 1;
         ts_out->tv_nsec = ts_out->tv_nsec + TIMING_GIGA;
