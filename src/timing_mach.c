@@ -4,8 +4,7 @@
 #include <time.h>
 #include "timing_mach.h"
 
-/* inline functions - maintain ANSI C compatibility
-*/
+/* inline functions - maintain ANSI C compatibility */
 #ifdef TIMING_C99
 /* *** */
 /* C99 */

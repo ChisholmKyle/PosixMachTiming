@@ -125,9 +125,7 @@ int clock_nanosleep_abstime(const struct timespec *req);
 /* Sets absolute time ts_target to ts_step after current time */
 int itimer_start (struct timespec *ts_target, const struct timespec *ts_step);
 
-/* Nanosleeps to ts_target then adds ts_step to ts_target for next iteration.
-   ts_rem is the remainging time after nanosleep.
- */
+/* Nanosleeps to ts_target then adds ts_step to ts_target for next iteration */
 int itimer_step (struct timespec *ts_target, const struct timespec *ts_step);
 
 /* TIMING_MACH_H */
