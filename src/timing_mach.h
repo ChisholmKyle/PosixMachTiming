@@ -18,7 +18,11 @@
 #define TIMING_NANO (1e-9)
 
 /* inline functions - maintain ANSI C compatibility */
-#ifdef TIMING_C99
+#ifndef TIMING_C99
+/* this is a bad hack that makes the functions static in a header file.
+   Compiler warnings about unused functions will plague anyone using this code with ANSI C. */
+#define inline static
+#endif
 
 /* timespec to double */
 inline double timespec2secd(const struct timespec *ts_in) {
@@ -31,7 +35,7 @@ inline void secd2timespec(struct timespec *ts_out, const double sec_d) {
     ts_out->tv_nsec = (long) ((sec_d - (double) ts_out->tv_sec) * TIMING_GIGA);
 }
 
-/* timespec difference (monotonic) */
+/* timespec difference (monotonic) left - right */
 inline void timespec_monodiff_lmr(struct timespec *ts_out,
                                     const struct timespec *ts_in) {
     /* out = out - in,
@@ -45,7 +49,7 @@ inline void timespec_monodiff_lmr(struct timespec *ts_out,
     }
 }
 
-/* timespec difference (monotonic) */
+/* timespec difference (monotonic) right - left */
 inline void timespec_monodiff_rml(struct timespec *ts_out,
                                     const struct timespec *ts_in) {
     /* out = in - out,
@@ -62,9 +66,7 @@ inline void timespec_monodiff_rml(struct timespec *ts_out,
 /* timespec addition (monotonic) */
 inline void timespec_monoadd(struct timespec *ts_out,
                              const struct timespec *ts_in) {
-    /* out = in + out,
-       where in > out
-     */
+    /* out = in + out */
     ts_out->tv_sec = ts_out->tv_sec + ts_in->tv_sec;
     ts_out->tv_nsec = ts_out->tv_nsec + ts_in->tv_nsec;
     if (ts_out->tv_nsec >= TIMING_GIGA) {
@@ -73,19 +75,8 @@ inline void timespec_monoadd(struct timespec *ts_out,
     }
 }
 
-#else
-/* ******************* */
-/* NOT C99 - no inline */
-
-double timespec2secd(const struct timespec *ts_in);
-void secd2timespec(struct timespec *ts_out, const double sec_d);
-void timespec_monodiff_lmr(struct timespec *ts_out,
-                           const struct timespec *ts_in);
-void timespec_monodiff_rml(struct timespec *ts_out,
-                           const struct timespec *ts_in);
-void timespec_monoadd(struct timespec *ts_out,
-                      const struct timespec *ts_in);
-
+#ifndef TIMING_C99
+#undef inline
 #endif
 
 #ifdef __MACH__
