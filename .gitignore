@@ -28,8 +28,11 @@
 *.x86_64
 *.hex
 
-# Debug files
+# Debug and profiling files
 *.dSYM/
+*.gcda
+*.gcno
+*.gcov
 
 # OS generated files #
 .DS_Store
@@ -48,3 +51,6 @@ example/fsm_example
 # PosixMachTiming
 # specific files not to include
 src/timing_test
+
+# Sublime Text stino plugin making annoying files
+stino.settings
