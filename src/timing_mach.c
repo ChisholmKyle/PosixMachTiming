@@ -67,8 +67,7 @@ int clock_gettime(clockid_t id, struct timespec *tspec) {
 
 int clock_nanosleep_abstime(const struct timespec *req) {
     struct timespec ts_delta;
-    int retval = 0;
-    retval = clock_gettime(CLOCK_MONOTONIC, &ts_delta);
+    int retval = clock_gettime(CLOCK_MONOTONIC, &ts_delta);
     if (retval != 0) return retval;
     timespec_monodiff_rml (&ts_delta, req);
     /* mach does not properly return remainder from nanosleep */
