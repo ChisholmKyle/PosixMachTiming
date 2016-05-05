@@ -80,7 +80,6 @@ int clock_nanosleep_abstime(const struct timespec *req) {
 #endif
 
 int itimer_start (struct timespec *ts_target, const struct timespec *ts_step) {
-    // struct timespec ts_cur;
     int retval = clock_gettime(CLOCK_MONOTONIC, ts_target);
     if (retval != 0) return retval;
     /* add step size to current monotonic time */
