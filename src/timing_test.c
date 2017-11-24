@@ -4,18 +4,13 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
-
-#include <sched.h>
-#include <signal.h>
-
-#ifdef __MACH__
-
-    #include <pthread.h>
-    #define sched_setscheduler pthread_setschedparam
-
-#endif
+#include <pthread.h>
 
 #include "timing_mach.h"
+
+/* interval timer */
+#define NUM_ITERS 20
+#define INTERVAL_TIME_STEP 0.0005
 
 /* in source folder, build and run with command:
    clang timing*.c -o timing_test && ./timing_test
@@ -23,19 +18,27 @@
 
 int main() {
 
+    /* set high priority FIFO scheduling */
     struct sched_param pri_param;
-    pri_param.sched_priority = sched_get_priority_max (SCHED_FIFO);
-    sched_setscheduler (0, SCHED_FIFO, &pri_param);
+    int sched_policy;
+    int max_priority;
+    pthread_getschedparam (pthread_self (), &sched_policy, &pri_param);
+    max_priority = sched_get_priority_max (SCHED_FIFO);
+    pri_param.sched_priority = max_priority - 1;
+    pthread_setschedparam (pthread_self (), SCHED_FIFO, &pri_param);
 
+    pthread_getschedparam (pthread_self (), &sched_policy, &pri_param);
+    printf("\nSched policy is %s\n", (sched_policy == SCHED_FIFO ? "SCHED_FIFO" : "SCHED_OTHER"));
+    printf("Sched priority is %d/%d\n", pri_param.sched_priority, max_priority);
+
+    /* timing examples */
     int64_t epoch;
     struct timespec before, after;
     double sum, elapsed, waittime;
     unsigned u;
 
     /* initialize mach timing */
-    #ifdef __MACH__
     timing_mach_init();
-    #endif
 
     /* display epoch time */
     clock_gettime(CLOCK_REALTIME, &before);
@@ -72,9 +75,7 @@ int main() {
     printf("Elapsed Time = %e s\n", elapsed);
 
     /* interval timer */
-    #define NUM_ITERS 10
-    double time_step = 0.0005;
-    /* work variables */
+    double time_step = INTERVAL_TIME_STEP;
     double deltas[NUM_ITERS];
     int k = 0;
     struct timespec ts_step, ts_target;
@@ -90,6 +91,7 @@ int main() {
         clock_gettime(CLOCK_MONOTONIC, &after);
         timespec_monodiff_rml (&before, &after);
         deltas[k] = timespec2secd(&before);
+        /* advance timer */
         before.tv_nsec = after.tv_nsec;
         before.tv_sec = after.tv_sec;
     }

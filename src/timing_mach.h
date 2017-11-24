@@ -3,25 +3,55 @@
 /* ************* */
 /* TIMING_MACH_H */
 
-/* C99 check */
-#if defined(__STDC__)
-# if defined(__STDC_VERSION__)
-#  if (__STDC_VERSION__ >= 199901L)
-#   define TIMING_C99
-#  endif
-# endif
-#endif
-
 #include <time.h>
 
+/* OSX before 10.12 (MacOS Sierra) */
+#define TIMING_MACH_BEFORE_10_12 (__MACH__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200)
+
+/* scale factors */
 #define TIMING_GIGA (1000000000)
 #define TIMING_NANO (1e-9)
 
-/* inline functions - maintain ANSI C compatibility */
-#ifndef TIMING_C99
-/* this is a bad hack that makes the functions static in a header file.
-   Compiler warnings about unused functions will plague anyone using this code with ANSI C. */
-#define inline static
+/*  Before OSX 10.12, the following are emulated here:
+        CLOCK_REALTIME
+        CLOCK_MONOTONIC
+        clockid_t
+        clock_gettime
+        clock_getres
+*/
+#if (TIMING_MACH_BEFORE_10_12)
+/* **** */
+/* MACH */
+
+    /* clockid_t - emulate POSIX */
+    typedef int clockid_t;
+
+    /* CLOCK_REALTIME - emulate POSIX */
+    #ifndef CLOCK_REALTIME
+    # define CLOCK_REALTIME 0
+    #endif
+
+    /* CLOCK_MONOTONIC - emulate POSIX */
+    #ifndef CLOCK_MONOTONIC
+    # define CLOCK_MONOTONIC 1
+    #endif
+
+    /* clock_gettime - emulate POSIX */
+    int clock_gettime ( const clockid_t id, struct timespec *tspec );
+
+    /* clock_getres - emulate POSIX */
+    int clock_getres (clockid_t id, struct timespec *res);
+
+    /* initialize timing */
+    int timing_mach_init (void);
+
+/* MACH */
+/* **** */
+#else
+
+    /* initialize mach timing is a no-op */
+    #define timing_mach_init() 0
+
 #endif
 
 /* timespec to double */
@@ -43,10 +73,18 @@ inline void timespec_monodiff_lmr(struct timespec *ts_out,
      */
     ts_out->tv_sec = ts_out->tv_sec - ts_in->tv_sec;
     ts_out->tv_nsec = ts_out->tv_nsec - ts_in->tv_nsec;
-    if (ts_out->tv_nsec < 0) {
-        ts_out->tv_sec = ts_out->tv_sec - 1;
-        ts_out->tv_nsec = ts_out->tv_nsec + TIMING_GIGA;
-    }
+    if (ts_out->tv_sec < 0) {
+        ts_out->tv_sec = 0;
+        ts_out->tv_nsec = 0;
+    } else if (ts_out->tv_nsec < 0) {
+        if (ts_out->tv_sec == 0) {
+            ts_out->tv_sec = 0;
+            ts_out->tv_nsec = 0;
+        } else {
+            ts_out->tv_sec = ts_out->tv_sec - 1;
+            ts_out->tv_nsec = ts_out->tv_nsec + TIMING_GIGA;
+        }
+    } else {}
 }
 
 /* timespec difference (monotonic) right - left */
@@ -57,10 +95,18 @@ inline void timespec_monodiff_rml(struct timespec *ts_out,
      */
     ts_out->tv_sec = ts_in->tv_sec - ts_out->tv_sec;
     ts_out->tv_nsec = ts_in->tv_nsec - ts_out->tv_nsec;
-    if (ts_out->tv_nsec < 0) {
-        ts_out->tv_sec = ts_out->tv_sec - 1;
-        ts_out->tv_nsec = ts_out->tv_nsec + TIMING_GIGA;
-    }
+    if (ts_out->tv_sec < 0) {
+        ts_out->tv_sec = 0;
+        ts_out->tv_nsec = 0;
+    } else if (ts_out->tv_nsec < 0) {
+        if (ts_out->tv_sec == 0) {
+            ts_out->tv_sec = 0;
+            ts_out->tv_nsec = 0;
+        } else {
+            ts_out->tv_sec = ts_out->tv_sec - 1;
+            ts_out->tv_nsec = ts_out->tv_nsec + TIMING_GIGA;
+        }
+    } else {}
 }
 
 /* timespec addition (monotonic) */
@@ -75,43 +121,31 @@ inline void timespec_monoadd(struct timespec *ts_out,
     }
 }
 
-#ifndef TIMING_C99
-#undef inline
-#endif
-
 #ifdef __MACH__
-/* ******** */
-/* __MACH__ */
+/* **** */
+/* MACH */
 
-/* only CLOCK_REALTIME and CLOCK_MONOTONIC are emulated */
-#ifndef CLOCK_REALTIME
-# define CLOCK_REALTIME 0
-#endif
-#ifndef CLOCK_MONOTONIC
-# define CLOCK_MONOTONIC 1
-#endif
+    /* emulate clock_nanosleep for CLOCK_MONOTONIC and TIMER_ABSTIME */
+    inline int clock_nanosleep_abstime ( const struct timespec *req )
+    {
+        struct timespec ts_delta;
+        int retval = clock_gettime ( CLOCK_MONOTONIC, &ts_delta );
+        if (retval == 0) {
+            timespec_monodiff_rml ( &ts_delta, req );
+            retval = nanosleep ( &ts_delta, NULL );
+        }
+        return retval;
+    }
 
-/* typdef POSIX clockid_t */
-typedef int clockid_t;
-
-/* initialize mach timing */
-int timing_mach_init (void);
-
-/* clock_gettime - emulate POSIX */
-int clock_gettime(const clockid_t id, struct timespec *tspec);
-
-/* clock_nanosleep for CLOCK_MONOTONIC and TIMER_ABSTIME */
-int clock_nanosleep_abstime(const struct timespec *req);
-
-/* __MACH__ */
-/* ******** */
+/* MACH */
+/* **** */
 #else
 /* ***** */
 /* POSIX */
 
-/* clock_nanosleep for CLOCK_MONOTONIC and TIMER_ABSTIME */
-# define clock_nanosleep_abstime(req) \
-         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, (req), NULL)
+    /* clock_nanosleep for CLOCK_MONOTONIC and TIMER_ABSTIME */
+    #define clock_nanosleep_abstime( req ) \
+        clock_nanosleep ( CLOCK_MONOTONIC, TIMER_ABSTIME, (req), NULL )
 
 /* POSIX */
 /* ***** */
