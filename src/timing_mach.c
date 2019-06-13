@@ -3,7 +3,7 @@
 
 #include <time.h>
 
-#if RO_MACH_BEFORE_10_12
+#if TIMING_MACH_BEFORE_10_12
 /* ******** */
 /* __MACH__ */
 
@@ -38,7 +38,7 @@ extern void timespec_monoadd(struct timespec *ts_out,
 #endif
 
 
-#if RO_MACH_BEFORE_10_12
+#if TIMING_MACH_BEFORE_10_12
 /* ******** */
 /* __MACH__ */
 
