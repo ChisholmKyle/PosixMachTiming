@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include <time.h>
+#include "timing_mach.h"
 
 #if TIMING_MACH_BEFORE_10_12
 /* ******** */
@@ -14,8 +15,6 @@
 /* __MACH__ */
 /* ******** */
 #endif
-
-#include "timing_mach.h"
 
 extern double timespec2secd(const struct timespec *ts_in);
 extern void secd2timespec(struct timespec *ts_out, const double sec_d);
