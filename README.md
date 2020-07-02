@@ -19,43 +19,50 @@ There is an extremely simple example program in the [src](https://github.com/Chi
 
 should output something like
 
-    Sched policy is SCHED_FIFO
-    Sched priority is 46/47
+``` text
+Sched policy is SCHED_FIFO
+Sched priority is 46/47
 
-    Epoch Time is 1511553574 seconds
+Status from clock_getres before init is -1 and errno is 45
 
-    Performing some math operations (sum) ...
-    Done. (result is: sum = 1.64493)
-    Elapsed Time = 7.327930e-01 s
+Epoch Time is 1593677616 seconds
 
-    Wait 2 seconds ...
-    Done waiting.
-    Elapsed Time = 2.000097e+00 s
+Resolution of realtime clock: tv_sec 0 tv_nsec 1
+Resolution of monotonic clock: tv_sec 0 tv_nsec 1
 
-    Interval timer with step size of 0.0005 seconds ...
-    iteration 0 >>> waited 6.320000e-04 seconds
-    iteration 1 >>> waited 5.150000e-04 seconds
-    iteration 2 >>> waited 4.670000e-04 seconds
-    iteration 3 >>> waited 5.030000e-04 seconds
-    iteration 4 >>> waited 5.330000e-04 seconds
-    iteration 5 >>> waited 4.960000e-04 seconds
-    iteration 6 >>> waited 4.680000e-04 seconds
-    iteration 7 >>> waited 5.040000e-04 seconds
-    iteration 8 >>> waited 5.310000e-04 seconds
-    iteration 9 >>> waited 4.960000e-04 seconds
-    iteration 10 >>> waited 4.690000e-04 seconds
-    iteration 11 >>> waited 5.360000e-04 seconds
-    iteration 12 >>> waited 4.660000e-04 seconds
-    iteration 13 >>> waited 4.690000e-04 seconds
-    iteration 14 >>> waited 5.350000e-04 seconds
-    iteration 15 >>> waited 5.290000e-04 seconds
-    iteration 16 >>> waited 4.640000e-04 seconds
-    iteration 17 >>> waited 5.040000e-04 seconds
-    iteration 18 >>> waited 5.330000e-04 seconds
-    iteration 19 >>> waited 4.940000e-04 seconds
-    Finished interval timer.
+Performing some math operations (sum) ...
+Done. (result is: sum = 1.64493)
+Elapsed Time = 8.574453e-01 s
 
-    Epoch Time is 1511553577 seconds
+Wait 2 seconds ...
+Done waiting.
+Elapsed Time = 2.000412e+00 s
+
+Interval timer with step size of 0.0005 seconds ...
+iteration 0 >>> waited 5.876090e-04 seconds
+iteration 1 >>> waited 5.887230e-04 seconds
+iteration 2 >>> waited 4.898970e-04 seconds
+iteration 3 >>> waited 4.884590e-04 seconds
+iteration 4 >>> waited 5.181490e-04 seconds
+iteration 5 >>> waited 4.976460e-04 seconds
+iteration 6 >>> waited 4.704730e-04 seconds
+iteration 7 >>> waited 5.430580e-04 seconds
+iteration 8 >>> waited 4.815320e-04 seconds
+iteration 9 >>> waited 4.065470e-04 seconds
+iteration 10 >>> waited 5.681740e-04 seconds
+iteration 11 >>> waited 5.301990e-04 seconds
+iteration 12 >>> waited 4.931940e-04 seconds
+iteration 13 >>> waited 4.469870e-04 seconds
+iteration 14 >>> waited 5.583800e-04 seconds
+iteration 15 >>> waited 4.978350e-04 seconds
+iteration 16 >>> waited 4.981900e-04 seconds
+iteration 17 >>> waited 5.003510e-04 seconds
+iteration 18 >>> waited 5.005460e-04 seconds
+iteration 19 >>> waited 4.995940e-04 seconds
+Finished interval timer.
+
+Epoch Time is 1593677619 seconds
+```
 
 Note that in this code example, scheduling is applied to a high priority so that the timer performs reliably.
 
