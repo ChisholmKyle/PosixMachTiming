@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include <unistd.h>
 
+#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
@@ -33,9 +34,14 @@ int main() {
 
     /* timing examples */
     int64_t epoch;
-    struct timespec before, after;
+    int status;
+    struct timespec res, before, after;
     double sum, elapsed, waittime;
     unsigned u;
+    
+    /* using clock_getres before initializing produces an intelligible error */
+    status = clock_getres(CLOCK_MONOTONIC, &res);
+    printf("\nStatus from clock_getres before init is %d and errno is %d\n", status, errno);
 
     /* initialize mach timing */
     timing_mach_init();
@@ -44,6 +50,16 @@ int main() {
     clock_gettime(CLOCK_REALTIME, &before);
     epoch = (int64_t) before.tv_sec;
     printf("\nEpoch Time is %" PRId64 " seconds\n", epoch);
+    
+    /* get clock resolution */
+    clock_getres(CLOCK_REALTIME, &res);
+    printf("\nResolution of realtime clock: tv_sec %ld tv_nsec %ld", res.tv_sec, res.tv_nsec);
+    clock_getres(CLOCK_MONOTONIC, &res);
+    printf("\nResolution of monotonic clock: tv_sec %ld tv_nsec %ld\n", res.tv_sec, res.tv_nsec);
+    
+    /* null pointer should not cause an error */
+    clock_getres(CLOCK_MONOTONIC, NULL);
+    clock_gettime(CLOCK_MONOTONIC, NULL);
 
     /* time something */
     printf("\nPerforming some math operations (sum) ...\n");

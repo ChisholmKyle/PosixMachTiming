@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 #include <unistd.h>
 
+#include <errno.h>
 #include <time.h>
 #include "timing_mach.h"
 
@@ -60,13 +61,13 @@ extern void timespec_monoadd(struct timespec *ts_out,
         mach_timespec_t mts;
         if (id == CLOCK_REALTIME) {
             retval = clock_get_time (ro_timing_mach_g.cclock, &mts);
-            if (retval == 0) {
+            if (retval == 0 && tspec != NULL) {
                 tspec->tv_sec = mts.tv_sec;
                 tspec->tv_nsec = mts.tv_nsec;
             }
         } else if (id == CLOCK_MONOTONIC) {
             retval = clock_get_time (clock_port, &mts);
-            if (retval == 0) {
+            if (retval == 0 && tspec != NULL) {
                 tspec->tv_sec = mts.tv_sec;
                 tspec->tv_nsec = mts.tv_nsec;
             }
@@ -77,12 +78,16 @@ extern void timespec_monoadd(struct timespec *ts_out,
     /* emulate posix clock_getres */
     int clock_getres (clockid_t id, struct timespec *res)
     {
-
         (void)id;
-        res->tv_sec = 0;
-        res->tv_nsec = ro_timing_mach_g.timebase.numer / ro_timing_mach_g.timebase.denom;
+        if (ro_timing_mach_g.timebase.numer == 0 || ro_timing_mach_g.timebase.denom == 0) {
+            errno = ENOTSUP;
+            return -1;
+        }
+        if (res != NULL) {
+            res->tv_sec = 0;
+            res->tv_nsec = ro_timing_mach_g.timebase.numer / ro_timing_mach_g.timebase.denom;
+        }
         return 0;
-
     }
 
     /* initialize */
